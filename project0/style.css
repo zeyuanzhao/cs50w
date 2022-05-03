@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
+body {
+  font-family: 'Roboto', arial, sans-serif;
+}
+
+.logo {
+  font-family: 'Lexend Deca', sans-serif;
+  font-size: 6rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.logo .blue {
+  color: #00a0e9;
+}
+
+.logo .red {
+  color: #e90000;
+}
+
+.logo .yellow {
+  color: #f9c000;
+}
+
+.logo .green {
+  color: #00e900;
+}
+
+.search {
+  border: solid 1px gray;
+  width: auto;
+  display: block;
+  width: auto;
+  width: 638px;
+  margin: auto;
+  border-radius: 30px;
+}
+
+.search-icon {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.search-input {
+  display: inline-block;
+  margin: auto;
+  width: 93.5%;
+  padding: 7px;
+  padding-left: 0px;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.btnrow {
+  display: block;
+  margin-top: 2rem;
+  width: 95%;
+  text-align: center;
+}
+
+.sbtn {
+  display: inline-block;
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 7px;
+  border: none;
+  background-color: #f8f9fa;
+}
+
+input[type="submit"]:hover {
+  cursor:pointer;
+}
+
+button[type="submit"]:hover {
+  cursor:pointer;
+}
+
+.navbar {
+  display: block;
+  text-align: right;
+}
+
+.navitem {
+  display: inline-block;
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 7px;
+  border: none;
+  color: black;
+  text-decoration: none;
+  font-size: 13px;
+  font-family: arial, sans-serif;
+}
+
+.navitem:hover {
+  text-decoration: underline;
+}
+
+.logo-img {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  font-size: 16px;
+  color: #4285f4;
+}
+
+.logo-container {
+  display: inline-block;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#logo-adv {
+  font-size: 24px;
+  margin-top: 0px;
+  display: inline-block;
+}
+
+.navbar-adv {
+  text-align: justify; 
+  padding-left: 10px;
+  padding-top: 10px
+}
+
+.navitem-adv {
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 7px;
+  border: none;
+  color: black;
+  text-decoration: none;
+  font-size: 13px;
+  display: inline-block;
+  font-family: arial, sans-serif;
+}
+
+.navitem-wrap {
+  float: right;
+}
+
+.title-adv {
+  font-size: 20px;
+  color: #d93025;
+  margin-top: 20px;
+  margin-left: 40px;
+}
+
+.separator {
+  border-bottom: 1px solid #ebebeb;
+  margin-bottom: 40px
+}
+
+.label-adv {
+  min-width: 167px;
+  display: inline-block;
+  font-size: 13px
+}
+
+.form-adv {
+  margin-left: 45px;
+  font-family: arial, sans-serif;
+  max-width: 1140px;
+}
+
+.filter-container {
+  height: 42px
+}
+
+.filter-input {
+  min-width: 167px;
+  width: 45%;
+  padding: 4px;
+  outline: none;
+  border: 1px #d9d9d9 solid;
+}
+
+.filter-input:focus {
+  border: #4d90fe 1px solid;
+}
+
+.starter-adv {
+  font-size: 1em;
+  font-family: 'Roboto', arial, sans-serif;
+}
+
+.submit-adv {
+  color: white;
+  background-color: #4d90fe;
+  border: 1px solid #3079ed;
+  padding: 12px;
+  font-size: 11px;
+  text-align: center;
+  height: 30px;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center; 
+  float: right;
+}
+
+.submit-container-adv {
+  min-width: 167px;
+  width: 46%;
+  padding: 4px;
+  display: inline-block;
+}
+
+.explanation-adv {
+  display: inline-block;
+  font-size: 11px;
+  word-break: break-all;
+  width: 35%
+}
+
+.monospace {
+  font-family: monospace;
+  color: #666;
+}
