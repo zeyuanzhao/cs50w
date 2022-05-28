@@ -43,7 +43,7 @@ def search(request):
 
 class NewEntryForm(forms.Form):
     # title = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "Title", "class": "mb-4 mt-3 form-control w-25"}), label="")
-    title = forms.CharField
+    title = forms.CharField(label="")
     markdown = forms.CharField(widget=forms.Textarea(attrs={"class": "d-block form-control w-75 mb-4"}), label="")
 
 def add(request):
