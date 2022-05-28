@@ -42,9 +42,8 @@ def search(request):
     })
 
 class NewEntryForm(forms.Form):
-    # title = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "Title", "class": "mb-4 mt-3 form-control w-25"}), label="")
-    title = forms.CharField(label="")
-    # markdown = forms.CharField(widget=forms.Textarea(attrs={"class": "d-block form-control w-75 mb-4"}), label="")
+    title = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "Title", "class": "mb-4 mt-3 form-control w-25"}), label="")
+    markdown = forms.CharField(widget=forms.Textarea(attrs={"class": "d-block form-control w-75 mb-4"}), label="")
 
 def add(request):
     if request.method == "GET":
@@ -73,17 +72,17 @@ def random(request):
     entry = choice(entries)
     return redirect("encyclopedia:wiki", entry)
 
-class NewEntryForm(forms.Form):
+class NewEditForm(forms.Form):
     markdown = forms.CharField(widget=forms.Textarea(attrs={"class": "d-block form-control w-75 mb-4"}), label="")
 
 def edit(request, entry):
     if request.method == "GET":
         return render(request, "encyclopedia/edit.html", {
             "title": entry,
-            "form": NewEntryForm()
+            "form": NewEditForm()
         })
     elif request.method == "POST":
-        form = NewEntryForm(request.POST)
+        form = NewEditForm(request.POST)
         if not form.is_valid():
             return render(request, "encyclopedia/edit.html", {
                 "form": form,
