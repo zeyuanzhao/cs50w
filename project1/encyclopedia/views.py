@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from django import forms
-import markdown2 
+import markdown2
 from . import util
 from random import choice
 
@@ -40,9 +40,10 @@ def search(request):
         "results": results,
         "entry": entry
     })
-        
+
 class NewEntryForm(forms.Form):
-    title = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "Title", "class": "mb-4 mt-3 form-control w-25"}), label="")
+    # title = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "Title", "class": "mb-4 mt-3 form-control w-25"}), label="")
+    title = forms.CharField
     markdown = forms.CharField(widget=forms.Textarea(attrs={"class": "d-block form-control w-75 mb-4"}), label="")
 
 def add(request):
@@ -64,7 +65,7 @@ def add(request):
                 "form": NewEntryForm(request.POST),
                 "error": "Entry already exists"
             })
-        util.save_entry(title, markdown) 
+        util.save_entry(title, markdown)
         return redirect("encyclopedia:wiki", title)
 
 def random(request):
