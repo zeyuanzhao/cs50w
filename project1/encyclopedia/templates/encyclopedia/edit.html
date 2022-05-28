@@ -5,13 +5,14 @@
 {% endblock %}
 
 {% block body %}
-    
-    <h1>Editing<em>{{ title }}</em></h1>
-    
-    <form action="{% url 'encyclopedia:edit' %}" method="post">
+
+    <h1>Editing <em>{{ title }}</em></h1>
+
+    <form action="{% url 'encyclopedia:edit' title%}" method="post">
         {% csrf_token %}
         <h2>{{ error }}</h2>
         {{ form }}
+        <input class="form-control" name="title" type="hidden" value="{{ title }}">
         <input class="form-control w-25" type="submit" value="Edit Entry">
     </form>
 {% endblock %}
