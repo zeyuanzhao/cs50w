@@ -40,3 +40,8 @@ textarea {
 .errorlist {
     display: inline-block;
 }
+
+.edit {
+    float: right;
+    margin-right: 20px;
+}

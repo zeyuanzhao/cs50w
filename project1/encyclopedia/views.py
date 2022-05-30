@@ -74,6 +74,7 @@ def random(request):
 
 class NewEditForm(forms.Form):
     markdown = forms.CharField(widget=forms.Textarea(attrs={"class": "d-block form-control w-75 mb-4"}), label="")
+    
 
 def edit(request, entry):
     if request.method == "GET":
