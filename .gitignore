@@ -312,19 +312,4 @@ Temporary Items
 # Ignore code-workspaces
 *.code-workspace
 
-### Web ###
-*.asp
-*.cer
-*.csr
-*.css
-*.htm
-*.html
-*.js
-*.jsp
-*.php
-*.rss
-*.wasm
-*.wat
-*.xhtml
-
 # End of https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,python,django,web

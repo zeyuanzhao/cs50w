@@ -5,11 +5,11 @@ from django.db import models
 class User(AbstractUser):
     pass
 
-class Auction(models):
+class Auction(models.Model):
     pass
 
-class Bid(models):
+class Bid(models.Model):
     pass
 
-class Comment(models):
+class Comment(models.Model):
     pass
