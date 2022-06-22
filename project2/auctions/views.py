@@ -67,13 +67,27 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def create(request):
-    pass
+    if request.method == "POST":
+        pass
+    else:
+        return render(request, "auctions/create.html")
 
 def watchlist(request):
-    pass
+    if request.method == "POST":
+        pass
+    else:
+        return render(request, "auctions/watchlist.html")
 
 def categories(request):
-    pass
+    if request.method == "POST":
+        pass
+    else:
+        return render(request, "auctions/categories.html")
 
 def listing(request, name):
-    pass
+    if request.method == "POST":
+        pass
+    else:
+        return render(request, "auctions/listing.html", {
+            "listing": listing
+        })
