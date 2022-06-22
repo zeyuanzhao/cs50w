@@ -5,10 +5,21 @@
 
     {% for listing in listings %}
        <div>
-            <a href="">
-                <img src="{{ listing.image_url }}">
-                <h4>{{ listing.get_highest_bid }}</h4>
-                <h3>{{ listing.title }}</h3>
+            <a href="{{  }}">
+                <div>
+                    <img src="{{ listing.image_url }}">
+                </div>
+                <div>
+                    <h3>{{ listing.title }}</h3>
+                    {% if listing.get_highest_bid %}
+                        <h3>Current Bid: </h3><p>{{ listing.get_highest_bid }}</p>
+                    {% else %}
+                        <h3>Starting Bid: </h3><p>{{ listing.starting_bid }}</p>
+                    {% endif %}
+                    <p>{{ listing.description }}</p>
+                    <h4>Category: {{ listing.category }}</h4>
+                </div>
+                
             </a>
        </div>
     {% endfor %}
