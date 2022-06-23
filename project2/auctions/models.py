@@ -16,7 +16,7 @@ class Listing(models.Model):
 
     @property
     def get_highest_bid(self):
-        return self.bid.filter(listing=self.id).aggregate(Max('amount'))["amount__max"]
+        return self.bids.filter(listing=self.id).aggregate(Max('amount'))["amount__max"]
 
 class Bid(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids", null=True)
