@@ -8,11 +8,11 @@ class User(AbstractUser):
 class Listing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", null=True)
     creation_time = models.DateTimeField(default=datetime.now, blank=True)
-    title = models.CharField(max_length=128)
-    description = models.CharField(max_length=512)
+    title = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
     starting_bid = models.IntegerField()
-    image_url = models.CharField(max_length=512)
-    category = models.CharField(max_length=32)
+    image_url = models.CharField(max_length=255, null=True)
+    category = models.CharField(max_length=255, null=True)
 
     @property
     def get_highest_bid(self):
@@ -28,8 +28,8 @@ class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments", null=True)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments", null=True)
     creation_time = models.DateTimeField(default=datetime.now, blank=True)
-    value = models.CharField(max_length=512, default="")
+    value = models.CharField(max_length=255, default="")
 
 class Watchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist", null=True)
-    watchlist = models.ManyToManyField(Listing, blank=True, related_name="watchlist")
+    watchlist = models.ManyToManyField(Listing, blank=True, related_name="watchlist", null=True)

@@ -68,7 +68,18 @@ def register(request):
 
 def create(request):
     if request.method == "POST":
-        pass
+        title = request.POST["title"]
+        description = request.POST["description"]
+        starting_bid = request.POST["startingbid"]
+        if not (title and description and starting_bid):
+            return render(request, "auctions/create.html", {
+                "message": "Please enter all required information"
+            })
+        image_url = request.POST["image"]
+        category = request.POST["category"]
+
+        listing = Listing()
+
     else:
         return render(request, "auctions/create.html")
 
