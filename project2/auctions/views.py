@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.db.models import Max
 from django import template
+from django.forms import ModelForm
 
 from .models import *
 # from .helper import *
@@ -66,22 +67,24 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+class CreateForm(ModelForm):    
+    class Meta:
+        model = Listing
+        fields = ["title", "description", "starting_bid", "image_url", "category"]
+    
+    def __init__(self, *args, **kwargs):
+        super(CreateForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({"class": "form-control form-group", "placeholder": self.fields[field].label})
+            self.fields[field].label = ""
+
 def create(request):
     if request.method == "POST":
-        title = request.POST["title"]
-        description = request.POST["description"]
-        starting_bid = request.POST["startingbid"]
-        if not (title and description and starting_bid):
-            return render(request, "auctions/create.html", {
-                "message": "Please enter all required information"
-            })
-        image_url = request.POST["image"]
-        category = request.POST["category"]
-
-        listing = Listing()
-
+        listing = request.POST
     else:
-        return render(request, "auctions/create.html")
+        return render(request, "auctions/create.html", {
+            "form": CreateForm
+        })
 
 def watchlist(request):
     if request.method == "POST":

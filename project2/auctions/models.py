@@ -6,30 +6,38 @@ from datetime import datetime
 class User(AbstractUser):
     pass
 class Listing(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", null=True)
+    CATEGORIES = (
+        ("electronics", "Electronics"),
+        ("home", "Home"),
+        ("tools", "Tools"),
+        ("clothes", "Clothes"),
+        ("toys", "Toys")
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", null=True, blank=True)
     creation_time = models.DateTimeField(default=datetime.now, blank=True)
-    title = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-    starting_bid = models.IntegerField()
-    image_url = models.CharField(max_length=255, null=True)
-    category = models.CharField(max_length=255, null=True)
+    title = models.CharField(max_length=255, blank=False)
+    description = models.CharField(max_length=255, blank=False)
+    starting_bid = models.IntegerField(blank=False)
+    image_url = models.CharField(max_length=255, null=True, blank=True)
+    category = models.CharField(max_length=255, null=True, blank=True, choices=CATEGORIES)
 
     @property
     def get_highest_bid(self):
         return self.bids.filter(listing=self.id).aggregate(Max('amount'))["amount__max"]
 
 class Bid(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids", null=True)
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids", null=True)
-    amount = models.IntegerField(null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids", null=True, blank=True)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids", null=True, blank=True)
+    amount = models.IntegerField(null=True, blank=False)
     bid_time = models.DateTimeField(default=datetime.now, blank=True)
 
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments", null=True)
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments", null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments", null=True, blank=True)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments", null=True, blank=True)
     creation_time = models.DateTimeField(default=datetime.now, blank=True)
-    value = models.CharField(max_length=255, default="")
+    value = models.CharField(max_length=255, default="", blank=False)
 
 class Watchlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist", null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist", null=True, blank=True)
     watchlist = models.ManyToManyField(Listing, blank=True, related_name="watchlist", null=True)
