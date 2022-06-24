@@ -7,11 +7,12 @@ class User(AbstractUser):
     pass
 class Listing(models.Model):
     CATEGORIES = (
-        ("electronics", "Electronics"),
-        ("home", "Home"),
-        ("tools", "Tools"),
-        ("clothes", "Clothes"),
-        ("toys", "Toys")
+        ("Electronics", "Electronics"),
+        ("Home", "Home"),
+        ("Tools", "Tools"),
+        ("Clothes", "Clothes"),
+        ("Toys", "Toys"),
+        ("Coding", "Coding")
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", null=True, blank=True)

@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.db.models import Max
 from django import template
 from django.forms import ModelForm
+from django.contrib.auth.decorators import login_required
 
 from .models import *
 # from .helper import *
@@ -78,14 +79,26 @@ class CreateForm(ModelForm):
             self.fields[field].widget.attrs.update({"class": "form-control form-group", "placeholder": self.fields[field].label})
             self.fields[field].label = ""
 
+@login_required
 def create(request):
     if request.method == "POST":
-        listing = request.POST
+        listing = CreateForm(request.POST)
+        if not listing.is_valid():
+            return render(request, "auctions/create.html", {
+                "form": listing
+        })
+        listing = listing.save(commit=False)
+        listing.user = request.user
+        listing.save()
+        return render(request, "auctions/create.html", {
+            "form": CreateForm
+        })
     else:
         return render(request, "auctions/create.html", {
             "form": CreateForm
         })
 
+@login_required
 def watchlist(request):
     if request.method == "POST":
         pass
