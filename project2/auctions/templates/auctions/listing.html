@@ -15,11 +15,16 @@
     {% if user.is_authenticated %}
         <form action="{% url "listing" listing.id %}" method="post">
             {% csrf_token %}
-            {{ form }}
+            {{ bidform }}
+            <input type="submit" value="Bid" class="form-group btn btn-primary">
+        </form>
+        <form action="{% url "listing" listing.id %}" method="post">
+            {% csrf_token %}
+            {{ commentform }}
             <input type="submit" value="Post" class="form-group btn btn-primary">
         </form>
     {% else %}
-        <h3>Login to Comment</h3>
+        <h3>Login to Bid or Comment</h3>
     {% endif %}
     {% for comment in comments %}
         <hr class="divider">

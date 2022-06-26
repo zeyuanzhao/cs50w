@@ -132,7 +132,29 @@ class CreateComment(ModelForm):
             self.fields[field].widget.attrs.update({"class": "form-control form-group", "placeholder": self.fields[field].label})
             self.fields[field].label = ""
 
+class CreateBid(ModelForm):
+    class Meta():
+        model = Bid
+        fields = ["amount"]
+    
+    def __init__(self, *args, **kwargs):
+        super(CreateBid, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({"class": "form-control form-group", "placeholder": self.fields[field].label})
+            self.fields[field].label = ""
+
 def listing(request, id):
+    return render(request, "auctions/listing.html", {
+        "listing": Listing.objects.get(id=id),
+        "commentform": CreateComment,
+        "bidform": CreateBid,
+        "comments": Comment.objects.filter(listing=Listing.objects.get(id=id))
+    })
+
+def bid(request, id):
+    pass
+
+def comment(request, id):
     if request.method == "POST":
         if not request.user.is_authenticated:
             return render(request, "auctions/listing.html", {
@@ -150,9 +172,3 @@ def listing(request, id):
         comment.listing = Listing.objects.get(id=id)
         comment.save()
         return redirect("/listing/" + id)
-    else:
-        return render(request, "auctions/listing.html", {
-            "listing": Listing.objects.get(id=id),
-            "form": CreateComment,
-            "comments": Comment.objects.filter(listing=Listing.objects.get(id=id))
-        })
