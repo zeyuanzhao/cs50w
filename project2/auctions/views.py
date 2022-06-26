@@ -147,28 +147,45 @@ def listing(request, id):
     return render(request, "auctions/listing.html", {
         "listing": Listing.objects.get(id=id),
         "commentform": CreateComment,
+        "biderror": "",
         "bidform": CreateBid,
         "comments": Comment.objects.filter(listing=Listing.objects.get(id=id))
     })
 
 def bid(request, id):
-    pass
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect("/listing/" + id)
+        bid = CreateBid(request.POST)
+        if not bid.is_valid():
+            return redirect("/listing/" + id)
+        bid = bid.save(commit=False)
+        if Listing.objects.get(id=id).get_highest_bid > bid.amount:
+            return render(request, "auctions/listing.html", {
+                "listing": Listing.objects.get(id=id),
+                "commentform": CreateComment,
+                "biderror": "New bid must be greater than current bid",
+                "bidform": CreateBid,
+                "comments": Comment.objects.filter(listing=Listing.objects.get(id=id))
+            })
+        bid.user = request.user
+        bid.listing = Listing.objects.get(id=id)
+        bid.save()
+        return redirect("/listing/" + id)
+    else:
+        return redirect("/listing/" + id)
 
 def comment(request, id):
     if request.method == "POST":
         if not request.user.is_authenticated:
-            return render(request, "auctions/listing.html", {
-                "listing": Listing.objects.get(id=id),
-                "form": CreateComment
-            })
+            return redirect("/listing/" + id)
         comment = CreateComment(request.POST)
         if not comment.is_valid():
-            return render(request, "auctions/listing.html", {
-                "listing": Listing.objects.get(id=id),
-                "form": CreateComment
-            })
+            return redirect("/listing/" + id)
         comment = comment.save(commit=False)
         comment.user = request.user
         comment.listing = Listing.objects.get(id=id)
         comment.save()
+        return redirect("/listing/" + id)
+    else:
         return redirect("/listing/" + id)

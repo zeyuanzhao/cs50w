@@ -11,11 +11,7 @@
                     <img src="{{ listing.image_url }}">
                 {% endif %}
                 <p>{{ listing.description }}</p>
-                {% if listing.get_highest_bid %}
-                    <h4>Current Bid: </h4><p>{{ listing.get_highest_bid }}</p>
-                {% else %}
-                    <h4>Starting Bid: </h4><p>{{ listing.starting_bid }}</p>
-                {% endif %}
+                <h4>Current Bid: </h4><p>{{ listing.get_highest_bid }}</p>
                 <h4>Category: {{ listing.category }}</h4>
             </a>
             <hr class="divider">

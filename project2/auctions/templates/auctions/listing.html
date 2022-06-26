@@ -6,19 +6,16 @@
         <img src="{{ listing.image_url }}">
     {% endif %}
     <p>{{ listing.description }}</p>
-    {% if listing.get_highest_bid %}
-        <h4>Current Bid: </h4><p>{{ listing.get_highest_bid }}</p>
-    {% else %}
-        <h4>Starting Bid: </h4><p>{{ listing.starting_bid }}</p>
-    {% endif %}
+    <h4>Current Bid: </h4><p>{{ listing.get_highest_bid }}</p>
     <h4>Category: {{ listing.category }}</h4>
     {% if user.is_authenticated %}
-        <form action="{% url "listing" listing.id %}" method="post">
+        <form action="{% url "bid" listing.id %}" method="post">
             {% csrf_token %}
+            <p>{{ biderror }}</p>
             {{ bidform }}
             <input type="submit" value="Bid" class="form-group btn btn-primary">
         </form>
-        <form action="{% url "listing" listing.id %}" method="post">
+        <form action="{% url "comment" listing.id %}" method="post">
             {% csrf_token %}
             {{ commentform }}
             <input type="submit" value="Post" class="form-group btn btn-primary">
