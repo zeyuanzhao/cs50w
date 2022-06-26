@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.db.models import Max
 from django import template
-from django.forms import ModelForm
+from django.forms import ModelForm, Textarea
 from django.contrib.auth.decorators import login_required
 
 from .models import *
@@ -68,13 +68,20 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
-class CreateForm(ModelForm):    
+class CreateListing(ModelForm):    
     class Meta:
         model = Listing
         fields = ["title", "description", "starting_bid", "image_url", "category"]
+        labels = {
+            "starting_bid": "Starting Bid",
+            "image_url": "Image URL"
+        }
+        widgets = {
+            "description": Textarea(attrs={"rows": 3})
+        }
     
     def __init__(self, *args, **kwargs):
-        super(CreateForm, self).__init__(*args, **kwargs)
+        super(CreateListing, self).__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs.update({"class": "form-control form-group", "placeholder": self.fields[field].label})
             self.fields[field].label = ""
@@ -82,7 +89,7 @@ class CreateForm(ModelForm):
 @login_required
 def create(request):
     if request.method == "POST":
-        listing = CreateForm(request.POST)
+        listing = CreateListing(request.POST)
         if not listing.is_valid():
             return render(request, "auctions/create.html", {
                 "form": listing
@@ -90,12 +97,10 @@ def create(request):
         listing = listing.save(commit=False)
         listing.user = request.user
         listing.save()
-        return render(request, "auctions/create.html", {
-            "form": CreateForm
-        })
+        return redirect("listing/" + str(listing.id))
     else:
         return render(request, "auctions/create.html", {
-            "form": CreateForm
+            "form": CreateListing
         })
 
 @login_required
@@ -111,10 +116,43 @@ def categories(request):
     else:
         return render(request, "auctions/categories.html")
 
-def listing(request, name):
+class CreateComment(ModelForm):
+    class Meta():
+        model = Comment
+        fields = ["value"]
+        labels = {
+            "value": "Comment"
+        }
+        widgets = {
+            "value": Textarea(attrs={"rows": 3})
+        }
+    def __init__(self, *args, **kwargs):
+        super(CreateComment, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({"class": "form-control form-group", "placeholder": self.fields[field].label})
+            self.fields[field].label = ""
+
+def listing(request, id):
     if request.method == "POST":
-        pass
+        if not request.user.is_authenticated:
+            return render(request, "auctions/listing.html", {
+                "listing": Listing.objects.get(id=id),
+                "form": CreateComment
+            })
+        comment = CreateComment(request.POST)
+        if not comment.is_valid():
+            return render(request, "auctions/listing.html", {
+                "listing": Listing.objects.get(id=id),
+                "form": CreateComment
+            })
+        comment = comment.save(commit=False)
+        comment.user = request.user
+        comment.listing = Listing.objects.get(id=id)
+        comment.save()
+        return redirect("/listing/" + id)
     else:
         return render(request, "auctions/listing.html", {
-            "listing": listing
+            "listing": Listing.objects.get(id=id),
+            "form": CreateComment,
+            "comments": Comment.objects.filter(listing=Listing.objects.get(id=id))
         })
