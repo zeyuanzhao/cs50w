@@ -22,6 +22,7 @@ class Listing(models.Model):
     starting_bid = models.IntegerField(blank=False)
     image_url = models.CharField(max_length=255, null=True, blank=True)
     category = models.CharField(max_length=255, null=True, blank=True, choices=CATEGORIES)
+    ended = models.BooleanField(default=False, null=False, blank=True)
 
     @property
     def get_highest_bid(self):
