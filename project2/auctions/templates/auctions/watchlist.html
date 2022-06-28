@@ -2,9 +2,9 @@
 
 {% block body %}
     <h2>Watchlist</h2>
-    <ul>
+    <ul class="list-group">
         {% for listing in watchlist %}
-            <li><a href="{% url "listing" listing.id %}">{{ listing.title }}</a></li>
+            <a href="{% url "listing" listing.id %}"><li class="list-group-item list-group-item-action">{{ listing.title }}</li></a>
         {% endfor %}
     </ul>
 {% endblock %}
