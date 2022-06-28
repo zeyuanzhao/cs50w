@@ -9,6 +9,14 @@
     <h4>Current Bid: </h4><p>{{ listing.get_highest_bid }}</p>
     <h4>Category: {{ listing.category }}</h4>
     {% if user.is_authenticated %}
+        <form action="{% url "watchlistadd" listing.id %}" method="post">
+            {% csrf_token %}
+            {% if watchlist %}
+                <input type="submit" value="Add to Watchlist">
+            {% else %}
+                <input type="submit" value="Add to Watchlist">
+            {% endif %}
+        </form>
         <form action="{% url "bid" listing.id %}" method="post">
             {% csrf_token %}
             <p>{{ biderror }}</p>

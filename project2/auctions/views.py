@@ -59,6 +59,8 @@ def register(request):
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
+            new_watchlist = Watchlist(user=user)
+            new_watchlist.save()
         except IntegrityError:
             return render(request, "auctions/register.html", {
                 "message": "Username already taken."
@@ -110,6 +112,18 @@ def watchlist(request):
     else:
         return render(request, "auctions/watchlist.html")
 
+@login_required
+def watchlist_add(request, id):
+    if request.method == "POST":
+        watchlist = request.user.watchlist.watchlist
+        if watchlist.filter(id=id).exists():
+            watchlist.remove(Listing.objects.get(id=id))
+        else:
+            watchlist.add(Listing.objects.get(id=id))
+        return redirect("/listing/" + id)
+    else:
+        return redirect("/listing/" + id)
+
 def categories(request):
     if request.method == "POST":
         pass
@@ -144,18 +158,21 @@ class CreateBid(ModelForm):
             self.fields[field].label = ""
 
 def listing(request, id):
+    in_watchlist = False
+    if request.user.is_authenticated:
+        in_watchlist = request.user.watchlist.watchlist.filter(id=id).exists()
     return render(request, "auctions/listing.html", {
         "listing": Listing.objects.get(id=id),
         "commentform": CreateComment,
         "biderror": "",
         "bidform": CreateBid,
-        "comments": Comment.objects.filter(listing=Listing.objects.get(id=id))
+        "comments": Comment.objects.filter(listing=Listing.objects.get(id=id)),
+        "watchlist": in_watchlist
     })
 
+@login_required
 def bid(request, id):
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            return redirect("/listing/" + id)
         bid = CreateBid(request.POST)
         if not bid.is_valid():
             return redirect("/listing/" + id)
@@ -175,10 +192,9 @@ def bid(request, id):
     else:
         return redirect("/listing/" + id)
 
+@login_required
 def comment(request, id):
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            return redirect("/listing/" + id)
         comment = CreateComment(request.POST)
         if not comment.is_valid():
             return redirect("/listing/" + id)

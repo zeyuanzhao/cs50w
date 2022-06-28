@@ -41,5 +41,5 @@ class Comment(models.Model):
     value = models.CharField(max_length=255, default="", blank=False)
 
 class Watchlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist", null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="watchlist", null=True, blank=True)
     watchlist = models.ManyToManyField(Listing, blank=True, related_name="watchlist", null=True)
