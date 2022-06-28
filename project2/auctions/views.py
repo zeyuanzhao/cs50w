@@ -107,10 +107,10 @@ def create(request):
 
 @login_required
 def watchlist(request):
-    if request.method == "POST":
-        pass
-    else:
-        return render(request, "auctions/watchlist.html")
+    watchlist_items = request.user.watchlist.watchlist.all()
+    return render(request, "auctions/watchlist.html", {
+        "watchlist": watchlist_items
+    })
 
 @login_required
 def watchlist_add(request, id):
