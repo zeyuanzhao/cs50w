@@ -125,10 +125,25 @@ def watchlist_add(request, id):
         return redirect("/listing/" + id)
 
 def categories(request):
-    if request.method == "POST":
-        pass
-    else:
-        return render(request, "auctions/categories.html")
+    categories_list = Listing.CATEGORIES
+    categories_list_2 = []
+    for i in range(len(categories_list)):
+        categories_list_2.append(categories_list[i][0])
+    return render(request, "auctions/categories.html", {
+        "categories": categories_list_2
+    })
+
+def category(request, c):
+    categories_list = Listing.CATEGORIES
+    categories_list_2 = []
+    for i in range(len(categories_list)):
+        categories_list_2.append(categories_list[i][0])
+    if c not in categories_list_2:
+        return redirect("/categories")
+    listings = Listing.objects.filter(category=c)
+    return render(request, "auctions/category.html", {
+        "listings": listings
+    })
 
 class CreateComment(ModelForm):
     class Meta():
