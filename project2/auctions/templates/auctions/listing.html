@@ -7,11 +7,21 @@
     {% endif %}
     <p>{{ listing.description }}</p>
     {% if listing.ended %}
-        <h4>Winner: {{ listing.get_highest_bidder }}</h4>
+        {% if listing.get_highest_bidder %}
+            <h4>Winner: {{ listing.get_highest_bidder }}</h4>
+        {% else %}
+            <h4>No one has won the auction</h4>
+        {% endif %}
     {% endif %}
     <h4>Current Bid: </h4><p>{{ listing.get_highest_bid }}</p>
     <h4>Category: {{ listing.category }}</h4>
     {% if user.is_authenticated %}
+        {% if owner %}
+            <form action="{% url "listingend" listing.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="End Auction" class="form-group btn btn-primary">
+            </form>
+        {% endif %}
         <form action="{% url "watchlistadd" listing.id %}" method="post">
             {% csrf_token %}
             {% if watchlist %}

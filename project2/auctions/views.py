@@ -19,7 +19,7 @@ def error(request, message):
 
 def index(request):
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all()
+        "listings": Listing.objects.filter(ended=False)
     })
 
 
@@ -127,7 +127,7 @@ def watchlist_add(request, id):
                 watchlist.remove(Listing.objects.get(id=id))
             else:
                 watchlist.add(Listing.objects.get(id=id))
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, ValueError):
             return error(request, "Failed to add/remove from watchlist; listing does not exist")
         return redirect("/listing/" + id)
     else:
@@ -182,19 +182,23 @@ class CreateBid(ModelForm):
             self.fields[field].label = ""
 
 def listing(request, id):
-    in_watchlist = False
-    if request.user.is_authenticated:
-        in_watchlist = request.user.watchlist.watchlist.filter(id=id).exists()
     try:
+        in_watchlist = False
+        owner = False
+        if request.user.is_authenticated:
+            in_watchlist = request.user.watchlist.watchlist.filter(id=id).exists()
+        if request.user.id == Listing.objects.get(id=id).user.id and not Listing.objects.get(id=id).ended:
+            owner = True
         return render(request, "auctions/listing.html", {
             "listing": Listing.objects.get(id=id),
             "commentform": CreateComment,
             "biderror": "",
             "bidform": CreateBid,
             "comments": Comment.objects.filter(listing=Listing.objects.get(id=id)),
-            "watchlist": in_watchlist
+            "watchlist": in_watchlist,
+            "owner": owner
         })
-    except ObjectDoesNotExist:
+    except (ObjectDoesNotExist, ValueError):
         return error(request, "Listing does not exist")
 
 @login_required
@@ -217,7 +221,7 @@ def bid(request, id):
             bid.listing = Listing.objects.get(id=id)
             bid.save()
             return redirect("/listing/" + id)
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, ValueError):
             return error(request, "Cannot save bid; listing does not exist")
     else:
         return redirect("/listing/" + id)
@@ -234,7 +238,7 @@ def comment(request, id):
             comment.listing = Listing.objects.get(id=id)
             comment.save()
             return redirect("/listing/" + id)
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, ValueError):
             return error(request, "Cannot save comment; listing does not exist")
     else:
         return redirect("/listing/" + id)
@@ -248,7 +252,12 @@ def listing_end(request, id):
                 listing.ended = True
                 listing.save()
             return redirect("/listing/" + id)
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, ValueError):
             return error(request, "Cannot end auction; listing does not exist")
     else:
         return redirect("/listing/" + id)
+
+def closed_listings(request):
+    return render(request, "auctions/index.html", {
+        "listings": Listing.objects.filter(ended=True)
+    })
