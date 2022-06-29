@@ -185,10 +185,17 @@ def listing(request, id):
     try:
         in_watchlist = False
         owner = False
+        winner = False
         if request.user.is_authenticated:
             in_watchlist = request.user.watchlist.watchlist.filter(id=id).exists()
-        if request.user.id == Listing.objects.get(id=id).user.id and not Listing.objects.get(id=id).ended:
-            owner = True
+        try:
+            if request.user.id == Listing.objects.get(id=id).user.id and not Listing.objects.get(id=id).ended:
+                owner = True
+            if request.user.id == Listing.objects.get(id=id).get_highest_bidder.id:
+                winner = True
+        except:
+            owner = False
+            winner = False
         return render(request, "auctions/listing.html", {
             "listing": Listing.objects.get(id=id),
             "commentform": CreateComment,
@@ -196,9 +203,11 @@ def listing(request, id):
             "bidform": CreateBid,
             "comments": Comment.objects.filter(listing=Listing.objects.get(id=id)),
             "watchlist": in_watchlist,
-            "owner": owner
+            "owner": owner,
+            "winner": winner
         })
-    except (ObjectDoesNotExist, ValueError):
+    except (ObjectDoesNotExist, ValueError) as e:
+        print(e)
         return error(request, "Listing does not exist")
 
 @login_required

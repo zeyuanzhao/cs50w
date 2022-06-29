@@ -31,7 +31,7 @@ class Listing(models.Model):
 
     @property
     def get_highest_bidder(self):
-        return self.bids.get(amount=self.get_highest_bid).user.username
+        return self.bids.get(amount=self.get_highest_bid).user
 
 class Bid(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids", null=True, blank=True)
