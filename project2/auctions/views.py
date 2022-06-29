@@ -7,9 +7,15 @@ from django.db.models import Max
 from django import template
 from django.forms import ModelForm, Textarea
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import *
 # from .helper import *
+
+def error(request, message):
+    return render(request, "auctions/error.html", {
+        "error": message
+    })
 
 def index(request):
     return render(request, "auctions/index.html", {
@@ -116,10 +122,13 @@ def watchlist(request):
 def watchlist_add(request, id):
     if request.method == "POST":
         watchlist = request.user.watchlist.watchlist
-        if watchlist.filter(id=id).exists():
-            watchlist.remove(Listing.objects.get(id=id))
-        else:
-            watchlist.add(Listing.objects.get(id=id))
+        try:
+            if watchlist.filter(id=id).exists():
+                watchlist.remove(Listing.objects.get(id=id))
+            else:
+                watchlist.add(Listing.objects.get(id=id))
+        except ObjectDoesNotExist:
+            return error(request, "Failed to add/remove from watchlist; listing does not exist")
         return redirect("/listing/" + id)
     else:
         return redirect("/listing/" + id)
@@ -176,14 +185,17 @@ def listing(request, id):
     in_watchlist = False
     if request.user.is_authenticated:
         in_watchlist = request.user.watchlist.watchlist.filter(id=id).exists()
-    return render(request, "auctions/listing.html", {
-        "listing": Listing.objects.get(id=id),
-        "commentform": CreateComment,
-        "biderror": "",
-        "bidform": CreateBid,
-        "comments": Comment.objects.filter(listing=Listing.objects.get(id=id)),
-        "watchlist": in_watchlist
-    })
+    try:
+        return render(request, "auctions/listing.html", {
+            "listing": Listing.objects.get(id=id),
+            "commentform": CreateComment,
+            "biderror": "",
+            "bidform": CreateBid,
+            "comments": Comment.objects.filter(listing=Listing.objects.get(id=id)),
+            "watchlist": in_watchlist
+        })
+    except ObjectDoesNotExist:
+        return error(request, "Listing does not exist")
 
 @login_required
 def bid(request, id):
@@ -191,19 +203,22 @@ def bid(request, id):
         bid = CreateBid(request.POST)
         if not bid.is_valid():
             return redirect("/listing/" + id)
-        bid = bid.save(commit=False)
-        if Listing.objects.get(id=id).get_highest_bid > bid.amount:
-            return render(request, "auctions/listing.html", {
-                "listing": Listing.objects.get(id=id),
-                "commentform": CreateComment,
-                "biderror": "New bid must be greater than current bid",
-                "bidform": CreateBid,
-                "comments": Comment.objects.filter(listing=Listing.objects.get(id=id))
-            })
-        bid.user = request.user
-        bid.listing = Listing.objects.get(id=id)
-        bid.save()
-        return redirect("/listing/" + id)
+        try:
+            bid = bid.save(commit=False)
+            if Listing.objects.get(id=id).get_highest_bid > bid.amount:
+                return render(request, "auctions/listing.html", {
+                    "listing": Listing.objects.get(id=id),
+                    "commentform": CreateComment,
+                    "biderror": "New bid must be greater than current bid",
+                    "bidform": CreateBid,
+                    "comments": Comment.objects.filter(listing=Listing.objects.get(id=id))
+                })
+            bid.user = request.user
+            bid.listing = Listing.objects.get(id=id)
+            bid.save()
+            return redirect("/listing/" + id)
+        except ObjectDoesNotExist:
+            return error(request, "Cannot save bid; listing does not exist")
     else:
         return redirect("/listing/" + id)
 
@@ -213,10 +228,27 @@ def comment(request, id):
         comment = CreateComment(request.POST)
         if not comment.is_valid():
             return redirect("/listing/" + id)
-        comment = comment.save(commit=False)
-        comment.user = request.user
-        comment.listing = Listing.objects.get(id=id)
-        comment.save()
+        try:
+            comment = comment.save(commit=False)
+            comment.user = request.user
+            comment.listing = Listing.objects.get(id=id)
+            comment.save()
+            return redirect("/listing/" + id)
+        except ObjectDoesNotExist:
+            return error(request, "Cannot save comment; listing does not exist")
+    else:
         return redirect("/listing/" + id)
+
+@login_required
+def listing_end(request, id):
+    if request.method == "POST":
+        try:
+            if request.user.id == Listing.objects.get(id=id).user.id:
+                listing = Listing.objects.get(id=id)
+                listing.ended = True
+                listing.save()
+            return redirect("/listing/" + id)
+        except ObjectDoesNotExist:
+            return error(request, "Cannot end auction; listing does not exist")
     else:
         return redirect("/listing/" + id)

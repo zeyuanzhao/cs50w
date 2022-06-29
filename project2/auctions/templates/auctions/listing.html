@@ -6,6 +6,9 @@
         <img src="{{ listing.image_url }}">
     {% endif %}
     <p>{{ listing.description }}</p>
+    {% if listing.ended %}
+        <h4>Winner: {{ listing.get_highest_bidder }}</h4>
+    {% endif %}
     <h4>Current Bid: </h4><p>{{ listing.get_highest_bid }}</p>
     <h4>Category: {{ listing.category }}</h4>
     {% if user.is_authenticated %}
