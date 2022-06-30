@@ -1,7 +1,55 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Listing</h2>
-
-    TODO
+    {% if winner %}
+        <h3>You have won the auction!!!</h3>
+    {% endif %}
+    <h2>{{ listing.title }}</h3>
+    {% if listing.image_url %}
+        <img src="{{ listing.image_url }}">
+    {% endif %}
+    <p>{{ listing.description }}</p>
+    {% if listing.ended %}
+        {% if listing.get_highest_bidder.username %}
+            <h4>Winner: {{ listing.get_highest_bidder.username }}</h4>
+        {% else %}
+            <h4>No one has won the auction</h4>
+        {% endif %}
+    {% endif %}
+    <h4>Current Bid: </h4><p>{{ listing.get_highest_bid }}</p>
+    <h4>Category: {{ listing.category }}</h4>
+    {% if user.is_authenticated %}
+        {% if owner %}
+            <form action="{% url "listingend" listing.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="End Auction" class="form-group btn btn-primary">
+            </form>
+        {% endif %}
+        <form action="{% url "watchlistadd" listing.id %}" method="post">
+            {% csrf_token %}
+            {% if watchlist %}
+                <input type="submit" value="Remove from Watchlist" class="form-group btn btn-primary">
+            {% else %}
+                <input type="submit" value="Add to Watchlist" class="form-group btn btn-primary">
+            {% endif %}
+        </form>
+        <form action="{% url "bid" listing.id %}" method="post">
+            {% csrf_token %}
+            <p>{{ biderror }}</p>
+            {{ bidform }}
+            <input type="submit" value="Bid" class="form-group btn btn-primary">
+        </form>
+        <form action="{% url "comment" listing.id %}" method="post">
+            {% csrf_token %}
+            {{ commentform }}
+            <input type="submit" value="Post" class="form-group btn btn-primary">
+        </form>
+    {% else %}
+        <h3>Login to Bid or Comment</h3>
+    {% endif %}
+    {% for comment in comments %}
+        <hr class="divider">
+        <h4>{{ comment.user }}</h4>
+        <p>{{ comment.value }}</p>
+    {% endfor %}
 {% endblock %}

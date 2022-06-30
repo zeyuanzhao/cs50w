@@ -1,18 +1,25 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.db.models import Max
 from django import template
-from django.forms import ModelForm
+from django.forms import ModelForm, Textarea
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import *
 # from .helper import *
 
+def error(request, message):
+    return render(request, "auctions/error.html", {
+        "error": message
+    })
+
 def index(request):
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all()
+        "listings": Listing.objects.filter(ended=False)
     })
 
 
@@ -58,6 +65,8 @@ def register(request):
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
+            new_watchlist = Watchlist(user=user)
+            new_watchlist.save()
         except IntegrityError:
             return render(request, "auctions/register.html", {
                 "message": "Username already taken."
@@ -67,41 +76,198 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
-class CreateForm(ModelForm):    
+class CreateListing(ModelForm):    
     class Meta:
         model = Listing
         fields = ["title", "description", "starting_bid", "image_url", "category"]
+        labels = {
+            "starting_bid": "Starting Bid",
+            "image_url": "Image URL"
+        }
+        widgets = {
+            "description": Textarea(attrs={"rows": 3})
+        }
     
     def __init__(self, *args, **kwargs):
-        super(CreateForm, self).__init__(*args, **kwargs)
+        super(CreateListing, self).__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs.update({"class": "form-control form-group", "placeholder": self.fields[field].label})
             self.fields[field].label = ""
 
+@login_required
 def create(request):
     if request.method == "POST":
-        listing = request.POST
+        listing = CreateListing(request.POST)
+        if not listing.is_valid():
+            return render(request, "auctions/create.html", {
+                "form": listing
+        })
+        listing = listing.save(commit=False)
+        listing.user = request.user
+        listing.save()
+        return redirect("listing/" + str(listing.id))
     else:
         return render(request, "auctions/create.html", {
-            "form": CreateForm
+            "form": CreateListing
         })
 
+@login_required
 def watchlist(request):
+    watchlist_items = request.user.watchlist.watchlist.all()
+    return render(request, "auctions/watchlist.html", {
+        "watchlist": watchlist_items
+    })
+
+@login_required
+def watchlist_add(request, id):
     if request.method == "POST":
-        pass
+        watchlist = request.user.watchlist.watchlist
+        try:
+            if watchlist.filter(id=id).exists():
+                watchlist.remove(Listing.objects.get(id=id))
+            else:
+                watchlist.add(Listing.objects.get(id=id))
+        except (ObjectDoesNotExist, ValueError):
+            return error(request, "Failed to add/remove from watchlist; listing does not exist")
+        return redirect("/listing/" + id)
     else:
-        return render(request, "auctions/watchlist.html")
+        return redirect("/listing/" + id)
 
 def categories(request):
-    if request.method == "POST":
-        pass
-    else:
-        return render(request, "auctions/categories.html")
+    categories_list = Listing.CATEGORIES
+    categories_list_2 = []
+    for i in range(len(categories_list)):
+        categories_list_2.append(categories_list[i][0])
+    return render(request, "auctions/categories.html", {
+        "categories": categories_list_2
+    })
 
-def listing(request, name):
-    if request.method == "POST":
-        pass
-    else:
+def category(request, c):
+    categories_list = Listing.CATEGORIES
+    categories_list_2 = []
+    for i in range(len(categories_list)):
+        categories_list_2.append(categories_list[i][0])
+    if c not in categories_list_2:
+        return redirect("/categories")
+    listings = Listing.objects.filter(category=c)
+    return render(request, "auctions/category.html", {
+        "category": c,
+        "listings": listings
+    })
+
+class CreateComment(ModelForm):
+    class Meta():
+        model = Comment
+        fields = ["value"]
+        labels = {
+            "value": "Comment"
+        }
+        widgets = {
+            "value": Textarea(attrs={"rows": 3})
+        }
+    def __init__(self, *args, **kwargs):
+        super(CreateComment, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({"class": "form-control form-group", "placeholder": self.fields[field].label})
+            self.fields[field].label = ""
+
+class CreateBid(ModelForm):
+    class Meta():
+        model = Bid
+        fields = ["amount"]
+    
+    def __init__(self, *args, **kwargs):
+        super(CreateBid, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({"class": "form-control form-group", "placeholder": self.fields[field].label})
+            self.fields[field].label = ""
+
+def listing(request, id):
+    try:
+        in_watchlist = False
+        owner = False
+        winner = False
+        if request.user.is_authenticated:
+            in_watchlist = request.user.watchlist.watchlist.filter(id=id).exists()
+        try:
+            if request.user.id == Listing.objects.get(id=id).user.id and not Listing.objects.get(id=id).ended:
+                owner = True
+            if request.user.id == Listing.objects.get(id=id).get_highest_bidder.id:
+                winner = True
+        except:
+            owner = False
+            winner = False
         return render(request, "auctions/listing.html", {
-            "listing": listing
+            "listing": Listing.objects.get(id=id),
+            "commentform": CreateComment,
+            "biderror": "",
+            "bidform": CreateBid,
+            "comments": Comment.objects.filter(listing=Listing.objects.get(id=id)),
+            "watchlist": in_watchlist,
+            "owner": owner,
+            "winner": winner
         })
+    except (ObjectDoesNotExist, ValueError) as e:
+        print(e)
+        return error(request, "Listing does not exist")
+
+@login_required
+def bid(request, id):
+    if request.method == "POST":
+        bid = CreateBid(request.POST)
+        if not bid.is_valid():
+            return redirect("/listing/" + id)
+        try:
+            bid = bid.save(commit=False)
+            if Listing.objects.get(id=id).get_highest_bid > bid.amount:
+                return render(request, "auctions/listing.html", {
+                    "listing": Listing.objects.get(id=id),
+                    "commentform": CreateComment,
+                    "biderror": "New bid must be greater than current bid",
+                    "bidform": CreateBid,
+                    "comments": Comment.objects.filter(listing=Listing.objects.get(id=id))
+                })
+            bid.user = request.user
+            bid.listing = Listing.objects.get(id=id)
+            bid.save()
+            return redirect("/listing/" + id)
+        except (ObjectDoesNotExist, ValueError):
+            return error(request, "Cannot save bid; listing does not exist")
+    else:
+        return redirect("/listing/" + id)
+
+@login_required
+def comment(request, id):
+    if request.method == "POST":
+        comment = CreateComment(request.POST)
+        if not comment.is_valid():
+            return redirect("/listing/" + id)
+        try:
+            comment = comment.save(commit=False)
+            comment.user = request.user
+            comment.listing = Listing.objects.get(id=id)
+            comment.save()
+            return redirect("/listing/" + id)
+        except (ObjectDoesNotExist, ValueError):
+            return error(request, "Cannot save comment; listing does not exist")
+    else:
+        return redirect("/listing/" + id)
+
+@login_required
+def listing_end(request, id):
+    if request.method == "POST":
+        try:
+            if request.user.id == Listing.objects.get(id=id).user.id:
+                listing = Listing.objects.get(id=id)
+                listing.ended = True
+                listing.save()
+            return redirect("/listing/" + id)
+        except (ObjectDoesNotExist, ValueError):
+            return error(request, "Cannot end auction; listing does not exist")
+    else:
+        return redirect("/listing/" + id)
+
+def closed_listings(request):
+    return render(request, "auctions/index.html", {
+        "listings": Listing.objects.filter(ended=True)
+    })
