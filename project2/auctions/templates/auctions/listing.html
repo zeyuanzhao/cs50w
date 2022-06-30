@@ -35,12 +35,14 @@
                 <input type="submit" value="Add to Watchlist" class="form-group btn btn-primary">
             {% endif %}
         </form>
-        <form action="{% url "bid" listing.id %}" method="post">
-            {% csrf_token %}
-            <p>{{ biderror }}</p>
-            {{ bidform }}
-            <input type="submit" value="Bid" class="form-group btn btn-primary">
-        </form>
+        {% if not listing.ended %}
+            <form action="{% url "bid" listing.id %}" method="post">
+                {% csrf_token %}
+                <p>{{ biderror }}</p>
+                {{ bidform }}
+                <input type="submit" value="Bid" class="form-group btn btn-primary">
+            </form>
+        {% endif %}
         <form action="{% url "comment" listing.id %}" method="post">
             {% csrf_token %}
             {{ commentform }}

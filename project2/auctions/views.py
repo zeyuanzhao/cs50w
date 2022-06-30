@@ -220,6 +220,8 @@ def bid(request, id):
         if not bid.is_valid():
             return redirect("/listing/" + id)
         try:
+            if Listing.objects.get(id=id).ended:
+                return redirect("/listing/" + id)
             bid = bid.save(commit=False)
             if Listing.objects.get(id=id).get_highest_bid > bid.amount:
                 return render(request, "auctions/listing.html", {
