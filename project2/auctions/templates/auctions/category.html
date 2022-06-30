@@ -1,11 +1,15 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Category</h2>
+    <h2>Category: {{ category }}</h2>
 
     <ul class="list-group">
-        {% for listing in listings %}
-            <a href="{% url "listing" listing.id %}"><li class="list-group-item list-group-item-action">{{ listing.title }}</li></a>
-        {% endfor %}
+        {% if listings %}
+            {% for listing in listings %}
+                <a href="{% url "listing" listing.id %}"><li class="list-group-item list-group-item-action">{{ listing.title }}</li></a>
+            {% endfor %}
+        {% else %}
+            <h3>There are no listings in this category</h3>
+        {% endif %}
     </ul>
 {% endblock %}

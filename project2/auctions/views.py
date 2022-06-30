@@ -151,6 +151,7 @@ def category(request, c):
         return redirect("/categories")
     listings = Listing.objects.filter(category=c)
     return render(request, "auctions/category.html", {
+        "category": c,
         "listings": listings
     })
 

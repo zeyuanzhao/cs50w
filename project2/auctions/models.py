@@ -8,11 +8,16 @@ class User(AbstractUser):
 class Listing(models.Model):
     CATEGORIES = (
         ("Electronics", "Electronics"),
-        ("Home", "Home"),
+        ("Furniture", "Furniture"),
+        ("Real Estate", "Real Estate"),
         ("Tools", "Tools"),
         ("Clothes", "Clothes"),
         ("Toys", "Toys"),
-        ("Coding", "Coding")
+        ("Office", "Office"),
+        ("Art", "Art"),
+        ("Instruments", "Instruments"),
+        ("Software", "Software"),
+        ("Antiques", "Antiques")
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", null=True, blank=True)
