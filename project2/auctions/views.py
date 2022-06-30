@@ -192,10 +192,12 @@ def listing(request, id):
         try:
             if request.user.id == Listing.objects.get(id=id).user.id and not Listing.objects.get(id=id).ended:
                 owner = True
+        except:
+            owner = False  
+        try:
             if request.user.id == Listing.objects.get(id=id).get_highest_bidder.id:
                 winner = True
         except:
-            owner = False
             winner = False
         return render(request, "auctions/listing.html", {
             "listing": Listing.objects.get(id=id),
@@ -268,6 +270,6 @@ def listing_end(request, id):
         return redirect("/listing/" + id)
 
 def closed_listings(request):
-    return render(request, "auctions/index.html", {
+    return render(request, "auctions/closed.html", {
         "listings": Listing.objects.filter(ended=True)
     })

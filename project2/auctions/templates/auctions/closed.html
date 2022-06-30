@@ -1,7 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>Closed Listings</h2>
 
     {% for listing in listings %}
        <div>
@@ -18,6 +18,6 @@
        </div>
     {% endfor %}
     {% if not listings %}
-       <h3>There are no active listings</h3>
+       <h3>There are no closed listings</h3>
     {% endif %}
 {% endblock %}

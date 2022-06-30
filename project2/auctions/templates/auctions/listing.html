@@ -1,8 +1,10 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    {% if winner %}
-        <h3>You have won the auction!!!</h3>
+    {% if winner and listing.ended %}
+        <h3>You have won the auction</h3>
+    {% elif winner %}
+        <h3>You have the highest bid</h3>
     {% endif %}
     <h2>{{ listing.title }}</h3>
     {% if listing.image_url %}
