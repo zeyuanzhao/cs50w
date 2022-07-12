@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
 
-  document.querySelector('#compose-form').addEventListener('submit', send_email);
+  document.querySelector('#compose-form').onsubmit = send_email;
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -22,6 +22,8 @@ function compose_email() {
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
+
+  document.querySelector('.compose-error').remove();
 }
 
 function load_mailbox(mailbox) {
@@ -32,14 +34,34 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(emails => emails.forEach(email => {
+    const sender = document.createElement('p')
+    sender.innerHTML = email.sender;
+    const subject = document.createElement('p');
+    subject.innerHTML = email.subject;
+    const timestamp = document.createElement('p');
+    subject.innerHTML = email.timestamp;
+
+    const read = email.read;
+
+    const div = document.createElement('div');
+    div.appendChild(sender);
+    div.appendChild(subject);
+    div.appendChild(timestamp);
+    document.querySelector('#emails-view').appendChild(div)
+  }))
 }
 
 function send_email() {
+  document.querySelectorAll('.compose-error').forEach(error => error.remove())
+
   const recipients = document.querySelector('#compose-recipients');
   const subject = document.querySelector('#compose-subject');
   const body = document.querySelector('#compose-body')
 
-  const response = fetch('/emails', {
+  fetch('/emails', {
     method: 'POST',
     body: JSON.stringify({
       recipients: recipients.value,
@@ -47,11 +69,19 @@ function send_email() {
       body: body.value
     })
   })
-
-  if (response.status === 201) {
-    recipients.value = '';
-    subject.value = '';
-    body.value = '';
-    load_mailbox('inbox');
-  }
+  .then(r => r.json().then(data => {
+    if (r.status === 201) {
+      recipients.value = '';
+      subject.value = '';
+      body.value = '';
+      load_mailbox('sent');
+    } else if (r.status === 400) {
+      const error = document.createElement('p');
+      error.innerHTML = data.error;
+      error.className = 'text-danger compose-error'
+      document.querySelector('#compose-form').append(error);
+    }
+  }));
+  
+  return false;
 }
