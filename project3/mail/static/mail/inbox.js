@@ -39,10 +39,13 @@ function load_mailbox(mailbox) {
   .then(emails => emails.forEach(email => {
     const sender = document.createElement('p')
     sender.innerHTML = email.sender;
+    sender.className = 'font-weight-bold d-inline mr-2 ml-2';
     const subject = document.createElement('p');
     subject.innerHTML = email.subject;
+    subject.className = 'd-inline ml-2';
     const timestamp = document.createElement('p');
-    subject.innerHTML = email.timestamp;
+    timestamp.innerHTML = email.timestamp;
+    timestamp.className = 'float-right d-inline mb-0 mr-2';
 
     const read = email.read;
 
@@ -50,6 +53,7 @@ function load_mailbox(mailbox) {
     div.appendChild(sender);
     div.appendChild(subject);
     div.appendChild(timestamp);
+    div.className = 'border border-dark rounded mb-2';
     document.querySelector('#emails-view').appendChild(div)
   }))
 }
