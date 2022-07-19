@@ -46,15 +46,18 @@ function load_mailbox(mailbox) {
     const timestamp = document.createElement('p');
     timestamp.innerHTML = email.timestamp;
     timestamp.className = 'float-right d-inline mb-0 mr-2';
-
     const read = email.read;
 
     const div = document.createElement('div');
     div.appendChild(sender);
     div.appendChild(subject);
     div.appendChild(timestamp);
-    div.className = 'border border-dark rounded mb-2';
-    document.querySelector('#emails-view').appendChild(div)
+    div.className = 'border border-dark rounded mb-2 email';
+    if (read) {
+      div.classList.add('read');
+    }
+    div.addEventListener('click', () => load_email(email.id));
+    document.querySelector('#emails-view').appendChild(div);
   }))
 }
 
@@ -88,4 +91,8 @@ function send_email() {
   }));
   
   return false;
+}
+
+function load_email(email) {
+
 }
