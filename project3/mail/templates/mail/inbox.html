@@ -27,12 +27,20 @@
                 <input class="form-control" id="compose-subject" placeholder="Subject">
             </div>
             <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
+            <p id="compose-error"></p>
             <input type="submit" class="btn btn-primary"/>
         </form>
     </div>
 
     <div id="email-view">
-        <h3></h3>
+        <form id="archive-form">
+            <input type="submit" value="Archive" class="btn btn-primary">
+        </form>
+        <h3 id="email-title"></h3>
+        <h4 id="email-sender"></h4>
+        <h4 id="email-recipients"></h4>
+        <h4 id="email-timestamp"></h4>
+        <p id="email-body"></p>
     </div>
 {% endblock %}
 
