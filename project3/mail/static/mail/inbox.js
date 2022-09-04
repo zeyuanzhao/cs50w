@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#compose').addEventListener('click', compose_email);
 
   document.querySelector('#compose-form').onsubmit = send_email;
+  document.querySelector('#archive-form').onsubmit = archive;
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -115,10 +116,14 @@ function load_email(id) {
     }))
 }
 
-function error_alert(msg) {
-  div = document.createElement('div');
-  div.className = 'alert alert-danger';
-  div.style.position = 'fixed';
-  div.innerHTML = msg;
-  document.appendChild(div);
+function archive() {
+  return false;
 }
+
+// function error_alert(msg) {
+//   div = document.createElement('div');
+//   div.className = 'alert alert-danger';
+//   div.style.position = 'fixed';
+//   div.innerHTML = msg;
+//   document.appendChild(div);
+// }
